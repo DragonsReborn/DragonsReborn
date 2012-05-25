@@ -1,6 +1,29 @@
+#Any potential compiled things
 *.class
-
-# Package Files #
 *.jar
-*.war
-*.ear
+#Possible eclipse stuff
+/.classpath
+/.project
+/.settings
+#vim
+.*.sw[a-p]
+#MCP Files
+*.bat
+*.sh
+*.zip
+LICENSE
+CHANGELOG
+#MCP Folders
+/bin
+/conf
+/docs
+/eclipse
+/jars
+/lib
+/logs
+/reobf
+/runtime
+/source
+/tmp
+#Minecraft Source Code! Don't want to break any laws
+/src/net
