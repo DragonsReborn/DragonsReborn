@@ -18,6 +18,7 @@ import net.minecraft.src.MovingObjectPosition;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.Vec3D;
 import net.minecraft.src.World;
+import net.minecraft.src.ModLoader;
 
 // Referenced classes of package net.minecraft.src:
 //            Entity, EntityPlayer, EntityLiving, MathHelper, 
@@ -40,6 +41,7 @@ public class StaffEntity extends Entity {
 	private int ticksInAir;
 	public boolean arrowCritical;
 	protected EntityLiving collided;
+	public String particletype = "explosion";
 
 	public StaffEntity(World world) {
 		super(world);
@@ -268,7 +270,7 @@ public class StaffEntity extends Entity {
 			}
 
 		}
-		worldObj.spawnParticle("explosion", posX, posY, posZ, -motionX, -motionY + 0.2D, -motionZ);
+		worldObj.spawnParticle(particletype, posX, posY, posZ, -motionX, -motionY + 0.2D, -motionZ);
 		posX += motionX;
 		posY += motionY;
 		posZ += motionZ;

@@ -18,28 +18,29 @@ import net.minecraft.src.ModLoader;
 import net.minecraft.src.Vec3D;
 import net.minecraft.src.World;
 
-public class Shouts
-{
+public class Shouts {
 	public static Random rand = new Random();
 	public static Minecraft mc = ModLoader.getMinecraftInstance();
 
 	public static void FusRoDah(World worldObj, EntityPlayer player, AxisAlignedBB boundingBox) {
 		List<Entity> targets = getNearbyEntities(worldObj, boundingBox);
 		mc.ingameGUI.addChatMessage("<" + player.username + ">:§3 FUS RO DAH");
-		for(Entity e : targets)
-			if(player.canEntityBeSeen((EntityLiving)e))
-			{
-				//e.addVelocity(playerView.xCoord * 4, playerView.yCoord * 4, playerView.zCoord * 4);
+		for (Entity e : targets)
+			if (player.canEntityBeSeen(e)) {
 				knockBack(e, 2, -(e.posX - player.posX), -(e.posZ - player.posZ));
-				for(int x = 0; x < 100; x ++)
-					worldObj.spawnParticle("portal", e.posX + rand.nextDouble() * 10D, e.posY + rand.nextDouble() * 10D, e.posZ + rand.nextDouble() * 10D, 0.0D, 0.0D, 0.0D);
+				for (int x = 0; x < 100; x++)
+					worldObj.spawnParticle("portal", e.posX + rand.nextDouble() * 10D, e.posY
+							+ rand.nextDouble() * 10D, e.posZ + rand.nextDouble() * 10D, 0.0D,
+							0.0D, 0.0D);
 			}
 	}
 
 	public static void StrunBahQo(World world, EntityPlayer player) {
-		for(Entity el : getNearbyEntities(world, player.boundingBox))
-			if(!(el == player))
-				world.spawnEntityInWorld(new EntityLightningBolt(world, el.posX, el.posY, el.posZ));
+		for (Entity el : getNearbyEntities(world, player.boundingBox))
+			if (!(el == player))
+				if (player.canEntityBeSeen(el))
+					world.spawnEntityInWorld(new EntityLightningBolt(world, el.posX, el.posY,
+							el.posZ));
 		mc.ingameGUI.addChatMessage("<" + player.username + ">:§3 STRUN BAH QO");
 	}
 
@@ -47,20 +48,23 @@ public class Shouts
 		new Thread(new Runnable() {
 			public void run() {
 				List<Entity> targets = getNearbyEntities(world, player.boundingBox);
-				for(int x = 0; x < 1000; x++) {
+				for (int x = 0; x < 1000; x++) {
 					try {
-						for(Entity e : targets)
-							if(e instanceof EntityDragon || e instanceof Dragon) {
+						for (Entity e : targets)
+							if (e instanceof EntityDragon || e instanceof Dragon) {
 								e.motionY -= 15;
-								for(int k = 0; k < 100; k++)
-									world.spawnParticle("portal", e.posX + rand.nextDouble() * 3D, e.posY + rand.nextDouble() * 3D, e.posZ + rand.nextDouble() * 3D, 0.0D, 0.0D, 0.0D);
+								for (int k = 0; k < 100; k++)
+									world.spawnParticle("portal", e.posX + rand.nextDouble() * 3D,
+											e.posY + rand.nextDouble() * 3D,
+											e.posZ + rand.nextDouble() * 3D, 0.0D, 0.0D, 0.0D);
 							}
 						Thread.sleep(10);
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
 				}
-			}}).start();
+			}
+		}).start();
 		mc.ingameGUI.addChatMessage("<" + player.username + ">:§3 JOOR ZAH FRUL");
 	}
 
@@ -70,10 +74,10 @@ public class Shouts
 	}
 
 	public static void YolToorShol(World world, final EntityPlayer player) {
-		//fireball(world, player);
 		List<Entity> targets = getNearbyEntities(world, player.boundingBox);
-		for(Entity e : targets)
-		Magic.Destruction.fireball(world, e.posX, e.posY-1, e.posZ);
+		for (Entity e : targets)
+			if (player.canEntityBeSeen(e))
+				Magic.Destruction.fireball(world, e.posX, e.posY - 1, e.posZ);
 		mc.ingameGUI.addChatMessage("<" + player.username + ">:§3 YOL TOOR SHOL");
 	}
 
@@ -83,17 +87,18 @@ public class Shouts
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					for(int x = 0; x < 500; x++) {
-						for(Entity e : targets)
-							if(e instanceof EntityCreature) {
-								((EntityCreature)e).setTarget(null);
-								for(int k = 0; k < 10; k++)
-									world.spawnParticle("portal", e.posX + rand.nextDouble() * 3D, e.posY + rand.nextDouble() * 3D, e.posZ + rand.nextDouble() * 3D, 0.0D, 0.0D, 0.0D);
+					for (int x = 0; x < 500; x++) {
+						for (Entity e : targets)
+							if (e instanceof EntityCreature) {
+								((EntityCreature) e).setTarget(null);
+								for (int k = 0; k < 10; k++)
+									world.spawnParticle("portal", e.posX + rand.nextDouble() * 3D,
+											e.posY + rand.nextDouble() * 3D,
+											e.posZ + rand.nextDouble() * 3D, 0.0D, 0.0D, 0.0D);
 							}
 						Thread.sleep(10);
 					}
-				}
-				catch(Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -109,33 +114,37 @@ public class Shouts
 	public static List<Entity> getNearbyEntities(World worldObj, AxisAlignedBB boundingBox) {
 		float f = 32F;
 		List list = worldObj.getEntitiesWithinAABB(EntityLiving.class, boundingBox.expand(f, f, f));
-		for(int x = 0; x < list.size(); x++)
-			if(list.get(x) instanceof EntityPlayer)
+		for (int x = 0; x < list.size(); x++)
+			if (list.get(x) instanceof EntityPlayer)
 				list.remove(x);
-		return (List<Entity>)list;
+		return (List<Entity>) list;
 	}
-	public static void knockBack(Entity entity, int i, double d, double d1)
-	{
+
+	public static void knockBack(Entity entity, int i, double d, double d1) {
 		entity.isAirBorne = true;
 		float f = MathHelper.sqrt_double(d * d + d1 * d1);
 		float f1 = 1.0F * i;
 		entity.motionX /= 2D;
 		entity.motionY /= 2D;
 		entity.motionZ /= 2D;
-		entity.motionX -= (d / (double)f) * (double)f1;
+		entity.motionX -= (d / (double) f) * (double) f1;
 		entity.motionY += 0.4D;
-		entity.motionZ -= (d1 / (double)f) * (double)f1;
-		if(entity.motionY > 0.4D)
+		entity.motionZ -= (d1 / (double) f) * (double) f1;
+		if (entity.motionY > 0.4D)
 			entity.motionY = 0.4D;
 	}
-	public static void fireball(World worldObj, EntityLiving shooter) {
-		Fireball entityfireball = new Fireball(worldObj, shooter, shooter.posX, shooter.posY, shooter.posZ);
-		double d8 = 2D;
-		Vec3D vec3d = shooter.getLook(1.0F);
-		entityfireball.posX = shooter.posX + vec3d.xCoord * d8;
-		entityfireball.posY = shooter.posY + (double)(shooter.height / 2.0F) + 0.5D;
-		entityfireball.posZ = shooter.posZ + vec3d.zCoord * d8;
-		entityfireball.onUpdate();
-		worldObj.spawnEntityInWorld(entityfireball);
-	}
+
+	// public static void fireball(World worldObj, EntityLiving shooter) {
+	// Fireball entityfireball = new Fireball(worldObj, shooter, shooter.posX,
+	// shooter.posY,
+	// shooter.posZ);
+	// double d8 = 2D;
+	// Vec3D vec3d = shooter.getLook(1.0F);
+	// entityfireball.posX = shooter.posX + vec3d.xCoord * d8;
+	// entityfireball.posY = shooter.posY + (double) (shooter.height / 2.0F) +
+	// 0.5D;
+	// entityfireball.posZ = shooter.posZ + vec3d.zCoord * d8;
+	// entityfireball.onUpdate();
+	// worldObj.spawnEntityInWorld(entityfireball);
+	// }
 }

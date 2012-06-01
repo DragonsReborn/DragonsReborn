@@ -16,7 +16,7 @@ public class Troll extends EntityMob {
 
 	@Override
 	public int getMaxHealth() {
-		return 40;
+		return 100;
 	}
 
 	@Override

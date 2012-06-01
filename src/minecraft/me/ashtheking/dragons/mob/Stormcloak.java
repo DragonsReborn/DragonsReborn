@@ -1,6 +1,6 @@
 package me.ashtheking.dragons.mob;
 
-import me.ashtheking.dragons.ai.EntityAIHuntingParty;
+import me.ashtheking.dragons.ai.EntityAISoldier;
 import me.ashtheking.dragons.ai.EntityAIRandomEvent;
 import me.ashtheking.dragons.mob.helper.Soldier;
 import net.minecraft.src.EntityAIAttackOnCollide;
@@ -24,7 +24,7 @@ public class Stormcloak extends Soldier {
 		 
 		  tasks.addTask(1, new EntityAIRandomEvent(this, moveSpeed, world));
 			 tasks.addTask(1, new EntityAIOpenDoor(this, true));
-			tasks.addTask(0, new EntityAIHuntingParty(this, EntityMob.class, Imperial.class));
+			tasks.addTask(0, new EntityAISoldier(this, EntityMob.class, Imperial.class,moveSpeed));
 		    
 			 tasks.addTask(5, new EntityAIMoveThroughVillage(this, moveSpeed, true));
 			targetTasks.addTask(2, new EntityAINearestAttackableTarget(this,

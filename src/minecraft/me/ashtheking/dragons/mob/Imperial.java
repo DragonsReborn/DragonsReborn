@@ -2,7 +2,7 @@ package me.ashtheking.dragons.mob;
 
 import java.util.List;
 
-import me.ashtheking.dragons.ai.EntityAIHuntingParty;
+import me.ashtheking.dragons.ai.EntityAISoldier;
 import me.ashtheking.dragons.ai.EntityAIRandomEvent;
 import me.ashtheking.dragons.mob.helper.Soldier;
 import net.minecraft.src.DamageSource;
@@ -31,13 +31,12 @@ public class Imperial extends Soldier {
 		texture = "/mob/imperial.png";
 		tasks.addTask(1, new EntityAIRandomEvent(this, moveSpeed, world));
 		 tasks.addTask(1, new EntityAIOpenDoor(this, true));
-		tasks.addTask(0, new EntityAIHuntingParty(this, EntityMob.class, Stormcloak.class));
+		tasks.addTask(0, new EntityAISoldier(this, EntityMob.class, Stormcloak.class,moveSpeed));
 	    
 		 tasks.addTask(5, new EntityAIMoveThroughVillage(this, moveSpeed, true));
 		targetTasks.addTask(2, new EntityAINearestAttackableTarget(this,
 				me.ashtheking.dragons.mob.SabreTooth.class, 16F, 0, false));
 		tasks.addTask(6, new EntityAIWander(this, .2F));
-		tasks.addTask(1, new EntityAIAttackOnCollide(this, moveSpeed, true));
 		 targetTasks.addTask(0, new EntityAIHurtByTarget(this, true));
 			
 	}
@@ -50,19 +49,19 @@ public class Imperial extends Soldier {
 		texture = "/mob/imperial.png";
 		 tasks.addTask(1, new EntityAIOpenDoor(this, true));
 		tasks.addTask(1, new EntityAIRandomEvent(this, moveSpeed, par1World));
-		tasks.addTask(0, new EntityAIHuntingParty(this, EntityMob.class, Stormcloak.class));
+		tasks.addTask(0, new EntityAISoldier(this, EntityMob.class, Stormcloak.class,moveSpeed));
 		 tasks.addTask(5, new EntityAIMoveThroughVillage(this, moveSpeed, true));
 		targetTasks.addTask(2, new EntityAINearestAttackableTarget(this,
 				me.ashtheking.dragons.mob.SabreTooth.class, 16F, 0, false));
 	
 		tasks.addTask(6, new EntityAIWander(this, .2F));
 		setLocationAndAngles(par2EntityLiving.posX, par2EntityLiving.posY+ (double) par2EntityLiving.getEyeHeight(), par2EntityLiving.posZ,	par2EntityLiving.rotationYaw, par2EntityLiving.rotationPitch);  
-		tasks.addTask(1, new EntityAIAttackOnCollide(this, EntityMob.class, moveSpeed, true));
 		targetTasks.addTask(0, new EntityAIHurtByTarget(this, true));
 	}
 	 
 	 public boolean isAIEnabled() 
 		{
+	
 			return true;
 		}
 		

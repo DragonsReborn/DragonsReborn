@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.src.Entity;
 import net.minecraft.src.EntityLiving;
 import net.minecraft.src.FontRenderer;
+import net.minecraft.src.Item;
 import net.minecraft.src.RenderBiped;
 import net.minecraft.src.Tessellator;
 
@@ -22,7 +23,10 @@ public class RenderSoldier extends RenderBiped {
             float f, float f1)
     {
         Soldier s = (Soldier)entity;
-        
+        /*
+         * Rotates if holding bow
+         */
+        this.modelBipedMain.aimedBow = s.heldItem.itemID == Item.bow.shiftedIndex;
         super.doRender(entity, d, d1, d2, f, f1);
     }
 	
