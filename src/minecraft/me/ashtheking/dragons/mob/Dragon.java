@@ -6,6 +6,7 @@ import java.util.List;
 import me.ashtheking.dragons.ids.Weapons;
 import me.ashtheking.dragons.meta.Fireball;
 import me.ashtheking.dragons.mob.helper.AshDragonPart;
+import net.minecraft.src.Block;
 import net.minecraft.src.DamageSource;
 import net.minecraft.src.Entity;
 import net.minecraft.src.EntityItem;
@@ -15,12 +16,14 @@ import net.minecraft.src.EntityXPOrb;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.MathHelper;
 import net.minecraft.src.ModLoader;
+import net.minecraft.src.StepSound;
 import net.minecraft.src.Vec3D;
 import net.minecraft.src.World;
 import net.minecraft.src.mod_Dragon;
 
 public class Dragon extends EntityLiving {
 
+	
 	public double targetX;
 	public double targetY;
 	public double targetZ;
@@ -36,11 +39,13 @@ public class Dragon extends EntityLiving {
 	public AshDragonPart dragonWing2;
 	public float newVar;
 	public float oldVar;
+	public boolean collide;
 	public boolean needsToReset;
 	public boolean differentMotion;
 	public Entity prey;
 	public int deathCount;
 	public int attackCounter = 0;
+
 
 	public Dragon(World world) {
 		super(world);
@@ -52,7 +57,7 @@ public class Dragon extends EntityLiving {
 		differentMotion = false;
 		deathCount = 0;
 		dragonPartList = (new AshDragonPart[] {
-				dragonHead = new AshDragonPart(this, "head", 6F, 6F),
+				dragonHead = new AshDragonPart(this, "head", 4F, 4F),
 				dragonBody = new AshDragonPart(this, "body", 8F, 8F),
 				dragonTail1 = new AshDragonPart(this, "tail", 4F, 4F),
 				dragonTail2 = new AshDragonPart(this, "tail", 4F, 4F),
@@ -64,8 +69,9 @@ public class Dragon extends EntityLiving {
 		setSize(16F, 8F);
 		noClip = false;
 		isImmuneToFire = true;
-		targetY = 100D;
+		targetY = 60D;
 		ignoreFrustumCheck = false;
+	
 		checkMaxDragons();
 		//setPosition(posX, 128, posZ);
 		maxHurtTime = 20;
@@ -106,6 +112,7 @@ public class Dragon extends EntityLiving {
 
 	// Some calculation
 	public double[] calculateSomething(int i, float f) {
+		
 		if (health <= 0) {
 			f = 0.0F;
 		}
@@ -131,6 +138,7 @@ public class Dragon extends EntityLiving {
 	public void onLivingUpdate() 
 	{
 		newVar = oldVar;
+		/*
 		if (health <= 0) {
 			float f = (rand.nextFloat() - 0.5F) * 8F;
 			float f2 = (rand.nextFloat() - 0.5F) * 4F;
@@ -139,11 +147,25 @@ public class Dragon extends EntityLiving {
 					+ (double) f2, posZ + (double) f4, 0.0D, 0.0D, 0.0D);
 			return;
 		}
+		*/
 		//checkMaxDragons();
+	/*
 		if (prey == null)
-			if (posY < 120)
-				motionY = (120 - posY);
-		float f1 = 0.2F / (MathHelper.sqrt_double(motionX * motionX + motionZ
+		{
+			if (posY < 60)
+			{
+				motionY = (60 - posY);
+			}
+		}
+		if (prey != null)
+		{
+			if (posY < prey.posY)
+			{
+				motionY = (prey.posY - posY);
+			}
+		}
+		*/
+			float f1 = 0.2F / (MathHelper.sqrt_double(motionX * motionX + motionZ
 				* motionZ) * 10F + 1.0F);
 		f1 *= (float) Math.pow(2D, motionY);
 		if (differentMotion) {
@@ -180,7 +202,10 @@ public class Dragon extends EntityLiving {
 			if (d13 > 10D) {
 				d13 = 10D;
 			}
-			targetY = prey.boundingBox.minY + d13;
+			targetY = prey.boundingBox.minY + .15;
+	
+			
+			
 		} else {
 			targetX += rand.nextGaussian() * 2D;
 			targetZ += rand.nextGaussian() * 2D;
@@ -384,8 +409,8 @@ if(maxHurtTime == 0) {
 	}
 
 	public Entity getNewTarget() {
-		float f = 32F;
-		List list = worldObj.getEntitiesWithinAABB(EntityLiving.class,
+		float f = 64F;
+		List list = worldObj.getEntitiesWithinAABB(EntityPlayer.class,
 				boundingBox.expand(f, f, f));
 		for (int x = 0; x < list.size(); x++)
 			if (list.get(x) instanceof Dragon)
@@ -398,34 +423,48 @@ if(maxHurtTime == 0) {
 		} else
 			return null;
 	}
+	@Override
+	  protected void fall(float par1)
+    {
+         
+   
+    }
 
 	public void shootFireball(Entity targetedEntity) {
 		if (canEntityBeSeen(targetedEntity)) {
 			attackCounter++;
-			if (attackCounter == 20) {
+		
+			if (attackCounter >= 0) {
+				
+				targetY = prey.boundingBox.minY + 25;
+				if(posY - targetedEntity.posY >= 20)
+				{
 				double d5 = targetedEntity.posX - dragonHead.posX;
 				double d6 = (targetedEntity.boundingBox.minY + (double) (targetedEntity.height / 2.0F))
-						- (dragonHead.posY + (double) (dragonHead.height / 2.0F));
+						- (dragonHead.posY + (double) (dragonHead.height / 2.0F) - 10);
 				double d7 = targetedEntity.posZ - dragonHead.posZ;
 				Fireball entityfireball = new Fireball(worldObj, this, d5, d6,
 						d7);
 				double d8 = 2D;
 				Vec3D vec3d = getLook(1.0F);
 				entityfireball.posX = dragonHead.posX + vec3d.xCoord * d8;
-				entityfireball.posY = dragonHead.posY
-						+ (double) (dragonHead.height / 2.0F) + 0.5D;
+				entityfireball.posY = dragonHead.posY - 2;
+					//	+ (double) (dragonHead.height / 2.0F) + 0.5D;
 				entityfireball.posZ = dragonHead.posZ + vec3d.zCoord * d8;
 				for (int x = 0; x < 3; x++)
 					entityfireball.onUpdate();
+				
 				entityfireball.motionX *= 2;
 				entityfireball.motionY *= 2;
 				entityfireball.motionZ *= 2;
+			
 				worldObj.spawnEntityInWorld(entityfireball);
-				attackCounter = -20;
-			}
-		} else if (attackCounter > 0) {
+				attackCounter = -20 - rand.nextInt(50);
+				}
+				}
+		} else if (attackCounter < 0) {
 			attackCounter--;
-			motionY += 0.01;
+			targetY = prey.boundingBox.minY + .8;
 		}
 	}
 
@@ -464,8 +503,9 @@ if(maxHurtTime == 0) {
 	}
 
 	// AshDragonPart attacked method
-	public boolean dragonPartHurt(AshDragonPart AshDragonPart,
-			DamageSource damagesource, int i) {
+	public boolean dragonPartHurt(AshDragonPart AshDragonPart,DamageSource damagesource, int i) 
+	{
+		
 		if (AshDragonPart != dragonHead) {
 			i = i / 4 + 1;
 		}
@@ -485,6 +525,10 @@ if(maxHurtTime == 0) {
 		if (damagesource == DamageSource.explosion
 				|| damagesource.getSourceOfDamage() != this || !b)
 			return false;
+		if(damagesource == DamageSource.inWall)
+		{
+			return false;
+		}
 		if ((damagesource.getSourceOfDamage() instanceof EntityPlayer)
 				|| damagesource == DamageSource.explosion) {
 			if (damagesource.getSourceOfDamage() instanceof EntityPlayer) {
@@ -540,6 +584,8 @@ if(maxHurtTime == 0) {
 			setDead();
 		}
 	}
+	
+
 
 	// returning dragon parts
 	public Entity[] getParts() {
@@ -548,7 +594,7 @@ if(maxHurtTime == 0) {
 
 	@Override
 	public int getMaxHealth() {
-		return 100;
+		return 150;
 	}
 
 	protected String getLivingSound() {

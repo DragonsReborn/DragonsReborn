@@ -76,16 +76,14 @@ public class GuiSkyrim extends Gui {
 		GL11.glLoadIdentity();
 		achievementWindowWidth = theGame.displayWidth;
 		achievementWindowHeight = theGame.displayHeight;
-		ScaledResolution scaledresolution = new ScaledResolution(
-				theGame.gameSettings, theGame.displayWidth,
-				theGame.displayHeight);
+		ScaledResolution scaledresolution = new ScaledResolution(theGame.gameSettings,
+				theGame.displayWidth, theGame.displayHeight);
 		achievementWindowWidth = scaledresolution.getScaledWidth();
 		achievementWindowHeight = scaledresolution.getScaledHeight();
 		GL11.glClear(256);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GL11.glOrtho(0.0D, achievementWindowWidth, achievementWindowHeight,
-				0.0D, 1000D, 3000D);
+		GL11.glOrtho(0.0D, achievementWindowWidth, achievementWindowHeight, 0.0D, 1000D, 3000D);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 		GL11.glTranslatef(0.0F, 0.0F, -2000F);
@@ -95,8 +93,8 @@ public class GuiSkyrim extends Gui {
 		EntityPlayer p = ModLoader.getMinecraftInstance().thePlayer;
 		World world = p.worldObj;
 		Location loc = new Location((int) p.posX, (int) p.posY, (int) p.posZ);
-		if (mod_Dragon.holdManager == null
-				|| mod_Dragon.holdManager.world != world)
+		if (mod_Dragon.holdManager == null || mod_Dragon.holdManager.world != world)
+
 			mod_Dragon.holdManager = new HoldManager(world);
 		if (world != null && mod_Dragon.holdManager.world != null) {
 			Hold h = mod_Dragon.holdManager.getHold(loc);
@@ -125,6 +123,7 @@ public class GuiSkyrim extends Gui {
 		update();
 		theGame.fontRenderer.drawString(currentHold, 14, 7, -1);
 		theGame.fontRenderer.drawString("Bounty: " + bounty, 14, 17, -1);
+
 		if (title == null || achievementTime == 0L) {
 			return;
 		}
@@ -156,11 +155,18 @@ public class GuiSkyrim extends Gui {
 		d1 *= d1;
 		int i = achievementWindowWidth - 160;
 		int j = 0 - (int) (d1 * 36D);
+		int km = theGame.renderEngine.getTexture("/achievement/bg.png");
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, km);
+		GL11.glDisable(GL11.GL_LIGHTING);
 		drawTexturedModalRect(i, j, 96, 202, 160, 32);
 
 		if (haveAchiement) {
 			theGame.fontRenderer.drawString(title, i + 2, j + 7, -1);
 			theGame.fontRenderer.drawString(description, i + 2, j + 18, -1);
+		} else {
+			return;
 		}
 
 		RenderHelper.enableGUIStandardItemLighting();

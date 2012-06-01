@@ -66,8 +66,8 @@ public class QuestHandler {
 			yesAnswer = config.getString("quest.var.yesAnswer");
 			noAnswer = config.getString("quest.var.noAnswer");
 			currentSection = config.getInt("quest.var.currentSection", -1);
-			if(currentSection == -1)
-					config.setProperty("quest.var.currentSection", 0);
+			if (currentSection == -1)
+				config.setProperty("quest.var.currentSection", 0);
 			currentSection = config.getInt("quest.var.currentSection", 0);
 			sections = new ArrayList<Section>();
 			for (ConfigurationNode cn : config.getNodeList("quest.section",
@@ -118,8 +118,8 @@ public class QuestHandler {
 				if (!n.finished)
 					n.onPlayerNear(player, world, rand);
 			boolean b = true;
-			for(Node n : nodeList)
-				if(!n.finished)
+			for (Node n : nodeList)
+				if (!n.finished)
 					b = false;
 			finished = b;
 		}

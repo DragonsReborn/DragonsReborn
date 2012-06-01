@@ -43,9 +43,9 @@ public class ItemRingHircine extends Item {
 				smoke();
 				while (mod_Dragon.isWerewolf) {
 					ModLoader.setPrivateValue(EntityLiving.class, player, "texture",
-							"/mob/werewolf.png");
+							"/mob/werewolf.png");					
 				}
-				ModLoader.setPrivateValue(EntityLiving.class, player, "texture", texture);
+				ModLoader.setPrivateValue(EntityLiving.class, player, "texture", "/mob/char.png");
 				smoke();
 			} catch (Exception e) {
 				e.printStackTrace();

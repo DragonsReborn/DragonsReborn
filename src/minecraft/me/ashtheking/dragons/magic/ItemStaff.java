@@ -4,6 +4,7 @@ import java.io.File;
 
 import me.ashtheking.dragons.world.QuestHandler;
 import me.ashtheking.dragons.world.QuestManager;
+import net.minecraft.src.EntityLiving;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.EnumAction;
 import net.minecraft.src.Item;
@@ -27,6 +28,13 @@ public class ItemStaff extends Item {
 	}
 
 	public void onPlayerStoppedUsing(ItemStack itemstack, World world, EntityPlayer ep, int i) {
+		onStopUse(itemstack, world, ep, i);
+		// GenuineNpcGuiStats gui = new GenuineNpcGuiStats(world, ep);
+		// gui.initGui();
+		// ModLoader.openGUI(ep, gui);
+	}
+
+	public void onStopUse(ItemStack itemstack, World world, EntityLiving ep, int i) {
 		int j = getMaxItemUseDuration(itemstack) - i;
 		float f = (float) j / 20F;
 		f = (f * f + f * 2.0F) / 3F;
@@ -39,15 +47,12 @@ public class ItemStaff extends Item {
 			return;
 		if (f == 1.0F)
 			fp.arrowCritical = true;
-		itemstack.damageItem(4 * (int) f, ep);
+		if (ep != null)
+			itemstack.damageItem(4 * (int) f, ep);
 		world.spawnEntityInWorld(fp);
-		if (mod_Dragon.questManager == null)
-			mod_Dragon.questManager = new QuestManager(world);
-		mod_Dragon.questManager.addQuest(ep, new QuestHandler(world, new File("saves/"
-				+ world.getSaveHandler().getSaveDirectoryName() + "/dragons/q.yml")));
-		// GenuineNpcGuiStats gui = new GenuineNpcGuiStats(world, ep);
-		// gui.initGui();
-		// ModLoader.openGUI(ep, gui);
+		if (ep instanceof EntityPlayer) {
+			EntityPlayer p = (EntityPlayer) ep;
+		}
 	}
 
 	public ItemStack onFoodEaten(ItemStack itemstack, World world, EntityPlayer entityplayer) {
@@ -62,7 +67,7 @@ public class ItemStaff extends Item {
 		return EnumAction.bow;
 	}
 
-	public StaffEntity getFireball(World world, final EntityPlayer ep, float f) {
+	public StaffEntity getFireball(World world, final EntityLiving ep, float f) {
 		return null;
 	}
 

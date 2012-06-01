@@ -16,8 +16,7 @@ import org.lwjgl.opengl.GL11;
 
 public class GNGStats extends GuiScreen {
 
-	public static List<Number> getValuesInKey(Map<String, String> map,
-			String key) {
+	public static List<Number> getValuesInKey(Map<String, String> map, String key) {
 		String s = map.get(key);
 		String as[] = s.split(",");
 		for (int j = 0; j < as.length; j++)
@@ -37,9 +36,7 @@ public class GNGStats extends GuiScreen {
 	}
 
 	private World world;
-
 	private GuiScreen parentScreen;
-
 	private Map<String, String> stats;
 
 	public GNGStats(World theWorld, EntityPlayer player) {
@@ -50,44 +47,26 @@ public class GNGStats extends GuiScreen {
 		parentScreen = guiScreen;
 		world = theWorld;
 		stats = new LinkedHashMap<String, String>();
-		stats.put("Health", player.getHealth() + "," + player.getMaxHealth());
-		stats.put("Magicka", 0 + "," + 100);
-		stats.put("Experience", player.experience + ","
-				+ player.experienceLevel);
-		// stats.put("Health", Integer.toString(genuineentitynpc.health) + "," +
-		// Integer.toString(genuineentitynpc.npcMaxHealth));
-		// stats.put("Mana", Integer.toString(genuineentitynpc.npcCurrentMana) +
-		// "," + Integer.toString(genuineentitynpc.npcMaxMana));
-		// stats.put("Experience",
-		// Integer.toString(genuineentitynpc.npcCurrentExp) + "," +
-		// Integer.toString(genuineentitynpc.npcMaxExp));
-		// stats.put("Strength",
-		// Integer.toString(genuineentitynpc.npcCurrentStrength) + "," +
-		// Integer.toString(genuineentitynpc.npcMaxStrength));
-		// stats.put("Speed", Float.toString(genuineentitynpc.moveSpeed) + "," +
-		// Float.toString(genuineentitynpc.npcMaxSpeed));
-		// stats.put("Size", Float.toString(genuineentitynpc.npcCurrentSize) +
-		// "," + Float.toString(genuineentitynpc.npcMaxSize));
+		// stats.put("Health", player.getHealth() + "," +
+		// player.getMaxHealth());
+		// stats.put("Magicka", 0 + "," + 100);
+		// stats.put("Experience", player.experience + "," +
+		// player.experienceLevel);
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		if (!guibutton.enabled)
 			return;
-		// if (guibutton.id == 0)
-		// mc.displayGuiScreen(new GNGOptions(this));
-		// if (guibutton.id == 1)
-		// mc.displayGuiScreen(new GNGRename(this, world));
 		if (guibutton.id == 1) {
 			if (mod_Dragon.currentShout + 1 < mod_Dragon.maxShouts)
 				mod_Dragon.currentShout++;
 			else
 				mod_Dragon.currentShout = 0;
-			guibutton.displayString = ItemShout.shoutNames[mod_Dragon.currentShout]
-					+ (ItemShout.shoutEnabled[mod_Dragon.currentShout] ? ""
-							: "(Disabled)");
-			// guibutton.enabled =
-			// ItemShout.shoutEnabled[mod_Dragon.currentShout];
+			// guibutton.displayString =
+			// ItemShout.shoutNames[mod_Dragon.currentShout]
+			// + (ItemShout.shoutEnabled[mod_Dragon.currentShout] ? "" :
+			// "(Disabled)");
 		}
 		if (guibutton.id == 2)
 			ItemShout.shoutEnabled[mod_Dragon.currentShout] = true;
@@ -98,33 +77,37 @@ public class GNGStats extends GuiScreen {
 	protected void drawCenterImage(int imageHeight, int imageWidth, String image) {
 		GL11.glDisable(2896 /* GL_LIGHTING */);
 		GL11.glDisable(2912 /* GL_FOG */);
-		GL11.glBindTexture(3553 /* GL_TEXTURE_2D */,
-				mc.renderEngine.getTexture(image));
+		GL11.glBindTexture(3553 /* GL_TEXTURE_2D */, mc.renderEngine.getTexture(image));
 		int j = (width - imageWidth) / 2;
 		int k = (height - imageHeight) / 2;
 		// This is where you can set the color manually.
 		GL11.glColor3d(1.0F, 1.0F, 1.0F);
-		drawTexturedModalRect(j, k + (int) (imageHeight * 1F / 16F), 0, 0,
-				imageWidth, (int) (imageHeight * 4F / 8F));
+		drawTexturedModalRect(j, k + (int) (imageHeight * 1F / 16F), 0, 0, imageWidth,
+				(int) (imageHeight * 4F / 8F));
 		drawTexturedModalRect(j, k + (int) (imageHeight * 9F / 16F), 0,
-				(int) (imageHeight * 5F / 8F), imageWidth,
-				(int) (imageHeight * 3F / 8F));
+				(int) (imageHeight * 5F / 8F), imageWidth, (int) (imageHeight * 3F / 8F));
+		
+		String sh = ItemShout.shoutNames[mod_Dragon.currentShout];
+		if(!ItemShout.shoutEnabled[mod_Dragon.currentShout])
+			sh += "(Disabled)";
+		this.drawString(fontRenderer, sh,
+				height / 2 + 20, width / 8, 0xff0033);
+		
+		String str = ItemShout.shoutDetails[mod_Dragon.currentShout];
+		String[] spl = str.split("\n");
+		for(int x = 0; x < spl.length; x++) {
+			String s = spl[x];
+		this.drawString(fontRenderer, s,
+				height / 2 + 20, width / 4 + x*10, 0xff0033);
+		}
 	}
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		drawDefaultBackground();
-		// ((GuiButton) controlList.get(1)).enabled =
-		// !ItemShout.shoutEnabled[mod_Dragon.currentShout];
 		drawStats(i, j);
-		// You might need to change these to use your mod's data structure.
 		drawCenterImage(256, 256, "/dragons/gui/window.png");
-		// drawCenteredString(fontRenderer, npc.npcName + " Level " +
-		// npc.npcLevel, width / 2, height / 2 - 105, 0xFFFFFF);
 		GL11.glTranslatef(0, 0, 15);
-		//drawCenteredString(fontRenderer,
-			//	ItemShout.shoutNames[mod_Dragon.currentShout], width / 2,
-				//height / 2 + 53, 0xFFFFFF);
 		GL11.glTranslatef(0, 0, -15);
 		super.drawScreen(i, j, f);
 	}
@@ -135,11 +118,9 @@ public class GNGStats extends GuiScreen {
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glEnable(3553);
 		// You might need to change these to use your mod's data structure.
-		GL11.glBindTexture(3553,
-				mc.renderEngine.getTexture("/dragons/gui/icons.png"));
+		GL11.glBindTexture(3553, mc.renderEngine.getTexture("/dragons/gui/icons.png"));
 		GL11.glTranslatef(0F, 5F, 0F);
 		drawTexturedModalRect(-181 / 2, 0, 0, 0, 181, 7);
-		// Thses are the colors for the status bars.
 		if (percent > 0) {
 			if (type == 0)
 				GL11.glColor3d(0, 1, 0);
@@ -153,8 +134,8 @@ public class GNGStats extends GuiScreen {
 				GL11.glColor3d(0.75D, 0, 1);
 			if (type == 5)
 				GL11.glColor3d(145D / 256D, 90D / 256D, 0);
-			drawTexturedModalRect(-(181 / 2) + 1, 1, 0, 7,
-					(int) (percent > 1 ? width : percent * width), 5);
+			drawTexturedModalRect(-(181 / 2) + 1, 1, 0, 7, (int) (percent > 1 ? width : percent
+					* width), 5);
 		}
 		GL11.glColor3d(1, 1, 1);
 		for (int i = 1; i < percent; i++)
@@ -180,15 +161,6 @@ public class GNGStats extends GuiScreen {
 			case 2:
 				key = "Experience";
 				break;
-			case 3:
-				key = "Strength";
-				break;
-			// case 4:
-			// key = "Speed";
-			// break;
-			// case 5:
-			// key = "Size";
-			// break;
 			default:
 				key = "new";
 			}
@@ -199,52 +171,38 @@ public class GNGStats extends GuiScreen {
 			int textPosY = height / 2 - 84 + 25 * counter;
 			int offsetX = 0;
 			int offsetY = 20 * counter % 40 + 20;
-			// You might need to change these to use your mod's data structure.
-			GL11.glBindTexture(3553,
-					mc.renderEngine.getTexture("/dragons/gui/buttons.png"));
-			// More color options.
+			GL11.glBindTexture(3553, mc.renderEngine.getTexture("/dragons/gui/buttons.png"));
 			GL11.glColor3d(1.0F, 1.0F, 1.0F);
-			drawTexturedModalRect(buttonPosX, buttonPosY, offsetX, offsetY,
-					100, 20);
+			drawTexturedModalRect(buttonPosX, buttonPosY, offsetX, offsetY, 100, 20);
 			drawCenteredString(fontRenderer, key, textPosX, textPosY, 0xFFFFFF);
 			GL11.glTranslated(width / 2, textPosY, 1);
 			try {
 				drawStatBar(Integer.valueOf(stringArray.get(0).toString()),
 						Integer.valueOf(stringArray.get(1).toString()), counter);
-			} catch (NumberFormatException numberformatexception) {
+			} catch (NumberFormatException ne) {
 				try {
 					drawStatBar(Float.valueOf(stringArray.get(0).toString()),
-							Float.valueOf(stringArray.get(1).toString()),
-							counter);
-				} catch (NumberFormatException numberformatexception1) {
+							Float.valueOf(stringArray.get(1).toString()), counter);
+				} catch (NumberFormatException ne1) {
 					try {
-						drawStatBar(
-								Double.valueOf(stringArray.get(0).toString()),
-								Double.valueOf(stringArray.get(1).toString()),
-								counter);
-					} catch (NumberFormatException numberformatexception2) {
-						numberformatexception2.printStackTrace();
+						drawStatBar(Double.valueOf(stringArray.get(0).toString()),
+								Double.valueOf(stringArray.get(1).toString()), counter);
+					} catch (NumberFormatException ne2) {
+						ne2.printStackTrace();
 					}
 				}
 			}
-			drawCenteredString(fontRenderer, stringArray.get(0).toString()
-					+ " / " + stringArray.get(1).toString(), 0, -4, 0xFFFFFF);
+			drawCenteredString(fontRenderer, stringArray.get(0).toString() + " / "
+					+ stringArray.get(1).toString(), 0, -4, 0xFFFFFF);
 			GL11.glTranslated(-(width / 2), -textPosY, -1);
 		}
 	}
 
 	@Override
 	public void initGui() {
-		// controlList.add(new GNGButton(0, width / 2 - 80, height / 2
-		// + 80, 50, 20, "Options"));
-		// controlList.add(new GNGButton(1, width / 2 - 25, height / 2
-		// + 80, 50, 20, "Rename"));
-		controlList.add(new GNGButton(1, width / 2 - 45, height / 2 + 47, 50,
-				20, ""));
-		controlList.add(new GNGButton(2, width / 2 + 50, height / 2 + 47, 50,
-				20, "Unlock"));
-		controlList.add(new GNGButton(3, width / 2 + 30, height / 2 + 80, 50,
-				20, "Done"));
+		controlList.add(new GNGButton(1, width / 2 - 45, height / 2 + 47, 50, 20, "Next"));
+		controlList.add(new GNGButton(2, width / 2 + 50, height / 2 + 47, 50, 20, "Unlock"));
+		controlList.add(new GNGButton(3, width / 2 + 30, height / 2 + 80, 50, 20, "Done"));
 		((GuiButton) controlList.get(1)).enabled = !ItemShout.shoutEnabled[mod_Dragon.currentShout];
 	}
 }

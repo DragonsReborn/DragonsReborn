@@ -1,22 +1,17 @@
 package me.ashtheking.dragons.magic;
 
-import net.minecraft.src.Block;
-import net.minecraft.src.DamageSource;
-import net.minecraft.src.Entity;
-import net.minecraft.src.EntityAIAttackOnCollide;
+import me.ashtheking.dragons.ai.EntityAIMagic;
 import net.minecraft.src.EntityAIFollowOwner;
 import net.minecraft.src.EntityAIHurtByTarget;
-import net.minecraft.src.EntityAILookIdle;
+import net.minecraft.src.EntityAILeapAtTarget;
 import net.minecraft.src.EntityAIOwnerHurtByTarget;
 import net.minecraft.src.EntityAIOwnerHurtTarget;
 import net.minecraft.src.EntityAISwimming;
 import net.minecraft.src.EntityAIWander;
 import net.minecraft.src.EntityAnimal;
-import net.minecraft.src.EntityArrow;
-import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.EntityTameable;
-import net.minecraft.src.MathHelper;
 import net.minecraft.src.NBTTagCompound;
+import net.minecraft.src.ItemStack;
 import net.minecraft.src.World;
 
 public class Atronach extends EntityTameable {
@@ -24,17 +19,27 @@ public class Atronach extends EntityTameable {
 	public Atronach(World world) {
 		super(world);
 		texture = "/mob/atronach.png";
-		moveSpeed = 1.3F;
+		moveSpeed = 0.3F;
 		this.isImmuneToFire = true;
 		getNavigator().func_48664_a(true);
 		tasks.addTask(1, new EntityAISwimming(this));
-		tasks.addTask(2, new EntityAIAttackOnCollide(this, moveSpeed, true));
-		tasks.addTask(2, new EntityAIFollowOwner(this, moveSpeed, 10F, 2.0F));
-		tasks.addTask(6, new EntityAIWander(this, moveSpeed));
-		tasks.addTask(6, new EntityAILookIdle(this));
-		targetTasks.addTask(2, new EntityAIOwnerHurtByTarget(this));
-		targetTasks.addTask(2, new EntityAIOwnerHurtTarget(this));
-		targetTasks.addTask(2, new EntityAIHurtByTarget(this, true));
+		// tasks.addTask(2, new EntityAIAttackOnCollide(this, moveSpeed, true));
+//		tasks.addTask(2, new EntityAIFollowOwner(this, moveSpeed, 10F, 2.0F));
+//		tasks.addTask(6, new EntityAIWander(this, moveSpeed));
+//		tasks.addTask(6, new EntityAILookIdle(this));
+//		tasks.addTask(2, new EntityAIOwnerHurtByTarget(this));
+//		tasks.addTask(2, new EntityAIOwnerHurtTarget(this));
+//		tasks.addTask(2, new EntityAIHurtByTarget(this, true));
+//		tasks.addTask(2, new EntityAIMagic(this, moveSpeed,
+//				Magic.staves.get(2).shiftedIndex, 60));
+		tasks.addTask(2, new EntityAILeapAtTarget(this, 0.4F));
+       // tasks.addTask(2, new EntityAIAttackOnCollide(this, moveSpeed, true));
+        tasks.addTask(2, new EntityAIMagic(this, moveSpeed, Magic.staves.get(2).shiftedIndex, 60));
+		tasks.addTask(4, new EntityAIFollowOwner(this, moveSpeed, 10F, 2.0F));
+        tasks.addTask(6, new EntityAIWander(this, moveSpeed));
+        targetTasks.addTask(2, new EntityAIOwnerHurtByTarget(this));
+        targetTasks.addTask(2, new EntityAIOwnerHurtTarget(this));
+        targetTasks.addTask(2, new EntityAIHurtByTarget(this, true));
 	}
 
 	public boolean isAIEnabled() {
@@ -76,72 +81,76 @@ public class Atronach extends EntityTameable {
 	protected int getDropItemId() {
 		return 0;
 	}
+	
+	public ItemStack getHeldItem() {
+		return new ItemStack(Magic.staves.get(2), 1);
+	}
 
 	public void onLivingUpdate() {
 		super.onLivingUpdate();
 		this.showSmokeFX();
 		this.setFire(100);
-		if (worldObj.getBlockId((int) posX, (int) posY, (int) posZ) != Block.fire.blockID) {
-			new Thread(new Watcher(worldObj, (int) posX, (int) posY,
-					(int) posZ, worldObj.getBlockId((int) posX, (int) posY,
-							(int) posZ), 2)).start();
-			worldObj.setBlock((int) posX, (int) posY, (int) posZ,
-					Block.fire.blockID);
-		}
+		// if (worldObj.getBlockId((int) posX, (int) posY, (int) posZ) !=
+		// Block.fire.blockID) {
+		// new Thread(new Watcher(worldObj, (int) posX, (int) posY,
+		// (int) posZ, worldObj.getBlockId((int) posX, (int) posY,
+		// (int) posZ), 2)).start();
+		// worldObj.setBlock((int) posX, (int) posY, (int) posZ,
+		// Block.fire.blockID);
+		// }
 	}
 
 	public float getEyeHeight() {
 		return height * 0.8F;
 	}
 
-	public boolean attackEntityFrom(DamageSource par1DamageSource, int par2) {
-		Entity entity = par1DamageSource.getEntity();
-		aiSit.func_48407_a(false);
-
-		if (entity != null && !(entity instanceof EntityPlayer)
-				&& !(entity instanceof EntityArrow)) {
-			par2 = (par2 + 1) / 2;
-		}
-
-		return super.attackEntityFrom(par1DamageSource, par2);
-	}
-
-	protected void attackEntity(Entity entity, float f) {
-		if (f < 10F) {
-			double d = entity.posX - posX;
-			double d1 = entity.posZ - posZ;
-			if (attackTime == 0) {
-				StaffEntity entityarrow = new StaffEntity(worldObj, this, 1.0F) {
-					public void onCollide() {
-						worldObj.createExplosion(shootingEntity, posX, posY,
-								posZ, 1F);
-					}
-				};
-				double d2 = (entity.posY + (double) entity.getEyeHeight())
-						- 0.69999998807907104D - entityarrow.posY;
-				float f1 = MathHelper.sqrt_double(d * d + d1 * d1) * 0.2F;
-				worldObj.playSoundAtEntity(this, "random.bow", 1.0F,
-						1.0F / (rand.nextFloat() * 0.4F + 0.8F));
-				worldObj.spawnEntityInWorld(entityarrow);
-				entityarrow.setArrowHeading(d, d2 + (double) f1, d1, 1.6F, 12F);
-				attackTime = 40;
-			}
-			rotationYaw = (float) ((Math.atan2(d1, d) * 180D) / 3.1415927410125732D) - 90F;
-			hasAttacked = true;
-		}
-	}
+	// public boolean attackEntityFrom(DamageSource par1DamageSource, int par2)
+	// {
+	// Entity entity = par1DamageSource.getEntity();
+	// aiSit.func_48407_a(false);
+	//
+	// if (entity != null && !(entity instanceof EntityPlayer)
+	// && !(entity instanceof EntityArrow)) {
+	// par2 = (par2 + 1) / 2;
+	// }
+	//
+	// return super.attackEntityFrom(par1DamageSource, par2);
+	// }
+	//
+	// protected void attackEntity(Entity entity, float f) {
+	// if (f < 10F) {
+	// double d = entity.posX - posX;
+	// double d1 = entity.posZ - posZ;
+	// if (attackTime == 0) {
+	// StaffEntity entityarrow = new StaffEntity(worldObj, this, 1.0F) {
+	// public void onCollide() {
+	// worldObj.createExplosion(shootingEntity, posX, posY,
+	// posZ, 1F);
+	// }
+	// };
+	// double d2 = (entity.posY + (double) entity.getEyeHeight())
+	// - 0.69999998807907104D - entityarrow.posY;
+	// float f1 = MathHelper.sqrt_double(d * d + d1 * d1) * 0.2F;
+	// worldObj.playSoundAtEntity(this, "random.bow", 1.0F,
+	// 1.0F / (rand.nextFloat() * 0.4F + 0.8F));
+	// worldObj.spawnEntityInWorld(entityarrow);
+	// entityarrow.setArrowHeading(d, d2 + (double) f1, d1, 1.6F, 12F);
+	// attackTime = 40;
+	// }
+	// rotationYaw = (float) ((Math.atan2(d1, d) * 180D) / 3.1415927410125732D)
+	// - 90F;
+	// hasAttacked = true;
+	// }
+	// }
 
 	void showSmokeFX() {
 		for (int i = 0; i < 7; i++) {
 			double d = rand.nextGaussian() * 0.02D;
 			double d1 = rand.nextGaussian() * 0.02D;
 			double d2 = rand.nextGaussian() * 0.02D;
-			worldObj.spawnParticle("smoke", (posX + (double) (rand.nextFloat()
-					* width * 2.0F))
-					- (double) width, posY + 0.5D
-					+ (double) (rand.nextFloat() * height),
-					(posZ + (double) (rand.nextFloat() * width * 2.0F))
-							- (double) width, d, d1, d2);
+			worldObj.spawnParticle("flame", (posX + (double) (rand.nextFloat() * width * 2.0F))
+					- (double) width, posY + 0.5D + (double) (rand.nextFloat() * height),
+					(posZ + (double) (rand.nextFloat() * width * 2.0F)) - (double) width, d, d1, d2);
 		}
 	}
 
