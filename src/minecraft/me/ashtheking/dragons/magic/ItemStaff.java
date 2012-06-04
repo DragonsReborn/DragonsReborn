@@ -35,6 +35,8 @@ public class ItemStaff extends Item {
 	}
 
 	public void onStopUse(ItemStack itemstack, World world, EntityLiving ep, int i) {
+		Magic.updateStats(ep);
+		updateMagic(ep);
 		int j = getMaxItemUseDuration(itemstack) - i;
 		float f = (float) j / 20F;
 		f = (f * f + f * 2.0F) / 3F;
@@ -53,6 +55,10 @@ public class ItemStaff extends Item {
 		if (ep instanceof EntityPlayer) {
 			EntityPlayer p = (EntityPlayer) ep;
 		}
+	}
+	
+	public void updateMagic(EntityLiving e) {
+		
 	}
 
 	public ItemStack onFoodEaten(ItemStack itemstack, World world, EntityPlayer entityplayer) {

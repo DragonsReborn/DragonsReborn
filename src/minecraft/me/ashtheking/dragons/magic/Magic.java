@@ -2,11 +2,11 @@ package me.ashtheking.dragons.magic;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import me.ashtheking.dragons.meta.FireExplosion;
 import me.ashtheking.dragons.meta.IceExplosion;
-import me.ashtheking.dragons.mob.Draugr;
 import me.ashtheking.dragons.mob.Necromancer;
 import net.minecraft.src.Block;
 import net.minecraft.src.DamageSource;
@@ -28,6 +28,8 @@ import net.minecraft.src.mod_Dragon;
 public class Magic {
 
 	public static class Alteration {
+
+		public static HashMap<EntityLiving, Integer> playerSkill, playerLevel, xpToNext;
 
 		public static void mageList(World world, Entity follow, int duration, EntityLiving owner) {
 			new Thread(new MageLight(follow, duration)).start();
@@ -114,6 +116,8 @@ public class Magic {
 
 	public static class Conjuration {
 
+		public static HashMap<EntityLiving, Integer> playerSkill, playerLevel, xpToNext;
+
 		public static void summonCreature(World world, Class<? extends EntityTameable> creature,
 				double x, double y, double z, int duration, EntityLiving owner) {
 			for (int k = 0; k < 10000; k++)
@@ -140,9 +144,8 @@ public class Magic {
 
 		public static void summonNecro(World world, double posX, double posY, double posZ,
 				EntityLiving owner, Entity target) {
-			int x = world.rand.nextInt(3);
-			EntityMob en = x == 0 ? new EntitySkeleton(world) : x == 1 ? new EntityZombie(world)
-					: new Draugr(world);
+			int x = world.rand.nextInt(2);
+			EntityMob en = x == 0 ? new EntitySkeleton(world) : new EntityZombie(world);
 			en.setLocationAndAngles(posX, posY, posZ, 0.0F, 0.0F);
 			world.spawnEntityInWorld(en);
 			en.setAttackTarget((EntityLiving) target);
@@ -150,6 +153,7 @@ public class Magic {
 			necro.setLocationAndAngles(posX, posY, posZ, 0, 0);
 			world.spawnEntityInWorld(necro);
 			new Thread(new BlockTarget(owner, en)).start();
+			new Thread(new Watcher(en, (int) Math.min(playerLevel.get(owner), 60))).start();
 		}
 
 		private static class BlockTarget implements Runnable {
@@ -221,6 +225,9 @@ public class Magic {
 	}
 
 	public static class Destruction {
+
+		public static HashMap<EntityLiving, Integer> playerSkill, playerLevel, xpToNext;
+
 		public static void fireball(World worldObj, double posX, double posY, double posZ) {
 			// worldObj.setBlock((int) posX, (int) posY, (int) posZ,
 			// mod_Dragon.blockFire.blockID);
@@ -243,16 +250,20 @@ public class Magic {
 			explosion.doExplosionB(true);
 		}
 
-		public static void firebolt(EntityLiving collide) {
-			new Thread(new FireDamage(collide, 4)).start();
+		public static void firebolt(EntityLiving shooter, EntityLiving collide) {
+			new Thread(new FireDamage(collide, (int) Math.min(playerLevel.get(shooter), 10)))
+					.start();
 		}
 
-		public static void icebolt(EntityLiving collide) {
-			new Thread(new FrostDamage(collide, 4, 0.4)).start();
+		public static void icebolt(EntityLiving shooter, EntityLiving collide) {
+			new Thread(new FrostDamage(collide, (int) Math.min(playerLevel.get(shooter), 10), 0.4))
+					.start();
 		}
 
-		public static void lightningbolt(EntityLiving collide) {
-			new Thread(new LightningDamage(collide, 4, 2)).start();
+		public static void lightningbolt(EntityLiving shooter, EntityLiving collide) {
+			new Thread(
+					new LightningDamage(collide, (int) Math.min(playerLevel.get(shooter), 10), 2))
+					.start();
 		}
 
 		public static void icespike(World worldObj, double posX, double posY, double posZ) {
@@ -331,6 +342,7 @@ public class Magic {
 	}
 
 	public static class Restoration {
+		public static HashMap<EntityLiving, Integer> playerSkill, playerLevel, xpToNext;
 		public static void heal(World world, EntityLiving player, Random rand) {
 			player.heal(2);
 			world.spawnParticle("portal", player.posX + rand.nextInt(2), player.posY, player.posZ
@@ -346,11 +358,19 @@ public class Magic {
 			public StaffEntity getFireball(World world, final EntityLiving ep, float f) {
 				StaffEntity e = new StaffEntity(world, ep, f * 2.0F) {
 					public void onLoad() {
-						Magic.Alteration.mageList(worldObj, this, 20, ep);
+						int duration = (int) Math.min(Alteration.playerLevel.get(ep), 20);
+						Magic.Alteration.mageList(worldObj, this, duration, ep);
 					}
 				};
 				e.particletype = "spell";
 				return e;
+			}
+
+			public void updateMagic(EntityLiving el) {
+				if (Alteration.playerSkill.containsKey(el))
+					Alteration.playerSkill.put(el, Alteration.playerSkill.get(el) + 1);
+				else
+					Alteration.playerSkill.put(el, 1);
 			}
 		};
 		Item atronach = new ItemStaff(mod_Dragon.LAST_ID++, "Atronach", Item.blazeRod.shiftedIndex,
@@ -358,12 +378,21 @@ public class Magic {
 			public StaffEntity getFireball(World world, final EntityLiving ep, float f) {
 				StaffEntity e = new StaffEntity(world, ep, f * 2.0F) {
 					public void onCollide() {
-						Magic.Conjuration.summonCreature(worldObj, Atronach.class, posX, posY,
-								posZ, 20, ep);
+						Magic.Conjuration
+								.summonCreature(worldObj, Atronach.class, posX, posY, posZ,
+										(int) Math.max(Magic.Conjuration.playerLevel.get(ep), 60),
+										ep);
 					}
 				};
 				e.particletype = "flame";
 				return e;
+			}
+
+			public void updateMagic(EntityLiving el) {
+				if (Conjuration.playerSkill.containsKey(el))
+					Conjuration.playerSkill.put(el, Conjuration.playerSkill.get(el) + 1);
+				else
+					Conjuration.playerSkill.put(el, 1);
 			}
 		};
 		Item fireball = new ItemStaff(mod_Dragon.LAST_ID++, "Fireball",
@@ -396,12 +425,19 @@ public class Magic {
 				StaffEntity e = new StaffEntity(world, ep, f * 2.0F) {
 					public void onCollide() {
 						if (collided != null)
-							Magic.Destruction.firebolt(collided);
+							Magic.Destruction.firebolt(ep, collided);
 
 					}
 				};
 				e.particletype = "flame";
 				return e;
+			}
+
+			public void updateMagic(EntityLiving el) {
+				if (Destruction.playerSkill.containsKey(el))
+					Destruction.playerSkill.put(el, Destruction.playerSkill.get(el) + 1);
+				else
+					Destruction.playerSkill.put(el, 1);
 			}
 		};
 		Item icebolt = new ItemStaff(mod_Dragon.LAST_ID++, "Ice Bolt", Block.blockSnow.blockID,
@@ -410,11 +446,18 @@ public class Magic {
 				StaffEntity e = new StaffEntity(world, ep, f * 2.0F) {
 					public void onCollide() {
 						if (collided != null)
-							Magic.Destruction.icebolt(collided);
+							Magic.Destruction.icebolt(ep, collided);
 					}
 				};
 				e.particletype = "splash";
 				return e;
+			}
+
+			public void updateMagic(EntityLiving el) {
+				if (Destruction.playerSkill.containsKey(el))
+					Destruction.playerSkill.put(el, Destruction.playerSkill.get(el) + 1);
+				else
+					Destruction.playerSkill.put(el, 1);
 			}
 		};
 		Item lightningbolt = new ItemStaff(mod_Dragon.LAST_ID++, "Lightning Bolt",
@@ -423,11 +466,18 @@ public class Magic {
 				StaffEntity e = new StaffEntity(world, ep, f * 2.0F) {
 					public void onCollide() {
 						if (collided != null)
-							Magic.Destruction.lightningbolt(collided);
+							Magic.Destruction.lightningbolt(ep, collided);
 					}
 				};
 				e.particletype = "reddust";
 				return e;
+			}
+
+			public void updateMagic(EntityLiving el) {
+				if (Destruction.playerSkill.containsKey(el))
+					Destruction.playerSkill.put(el, Destruction.playerSkill.get(el) + 1);
+				else
+					Destruction.playerSkill.put(el, 1);
 			}
 		};
 		Item icespike = new ItemStaff(mod_Dragon.LAST_ID++, "Ice Spike", Block.ice.blockID, false) {
@@ -479,9 +529,16 @@ public class Magic {
 				world.spawnParticle("heart", ep.posX, ep.posY, ep.posZ, 0, 0, 0);
 				return itemstack;
 			}
+
+			public void updateMagic(EntityLiving el) {
+				if (Restoration.playerSkill.containsKey(el))
+					Restoration.playerSkill.put(el, Restoration.playerSkill.get(el) + 1);
+				else
+					Restoration.playerSkill.put(el, 1);
+			}
 		};
-		Item necro = new ItemStaff(mod_Dragon.LAST_ID++, "Raise Undead", Item.rottenFlesh.shiftedIndex,
-				true) {
+		Item necro = new ItemStaff(mod_Dragon.LAST_ID++, "Raise Undead",
+				Item.rottenFlesh.shiftedIndex, true) {
 			public StaffEntity getFireball(World world, final EntityLiving ep, float f) {
 				StaffEntity e = new StaffEntity(world, ep, f * 2.0F) {
 					public void onCollide() {
@@ -490,6 +547,13 @@ public class Magic {
 				};
 				e.particletype = "townaura";
 				return e;
+			}
+
+			public void updateMagic(EntityLiving el) {
+				if (Conjuration.playerSkill.containsKey(el))
+					Conjuration.playerSkill.put(el, Conjuration.playerSkill.get(el) + 1);
+				else
+					Conjuration.playerSkill.put(el, 1);
 			}
 		};
 		staves.add(mageLight); // 0
@@ -502,6 +566,81 @@ public class Magic {
 		staves.add(icespike); // 7
 		staves.add(healing); // 8
 		staves.add(necro); // 9
+	}
+
+	public static void updateStats(EntityLiving el) {
+		if (el == null)
+			return;
+		if (Destruction.playerLevel == null || Destruction.playerSkill == null
+				|| Destruction.xpToNext == null) {
+			Destruction.playerLevel = new HashMap<EntityLiving, Integer>();
+			Destruction.playerSkill = new HashMap<EntityLiving, Integer>();
+			Destruction.xpToNext = new HashMap<EntityLiving, Integer>();
+		}
+		if (Conjuration.playerLevel == null || Conjuration.playerSkill == null
+				|| Conjuration.xpToNext == null) {
+			Conjuration.playerLevel = new HashMap<EntityLiving, Integer>();
+			Conjuration.playerSkill = new HashMap<EntityLiving, Integer>();
+			Conjuration.xpToNext = new HashMap<EntityLiving, Integer>();
+		}
+		if (Restoration.playerLevel == null || Restoration.playerSkill == null
+				|| Restoration.xpToNext == null) {
+			Restoration.playerLevel = new HashMap<EntityLiving, Integer>();
+			Restoration.playerSkill = new HashMap<EntityLiving, Integer>();
+			Restoration.xpToNext = new HashMap<EntityLiving, Integer>();
+		}
+		if (Alteration.playerLevel == null || Alteration.playerSkill == null
+				|| Alteration.xpToNext == null) {
+			Alteration.playerLevel = new HashMap<EntityLiving, Integer>();
+			Alteration.playerSkill = new HashMap<EntityLiving, Integer>();
+			Alteration.xpToNext = new HashMap<EntityLiving, Integer>();
+		}
+
+		if (Destruction.playerSkill.containsKey(el))
+			Destruction.playerSkill.put(el, Destruction.playerSkill.get(el) + 1);
+		else {
+			Destruction.playerSkill.put(el, 1);
+			Destruction.playerLevel.put(el, 1);
+			Destruction.xpToNext.put(el,  5);
+		}
+		if (Alteration.playerSkill.containsKey(el))
+			Alteration.playerSkill.put(el, Alteration.playerSkill.get(el) + 1);
+		else {
+			Alteration.playerSkill.put(el, 1);
+			Alteration.playerLevel.put(el, 1);
+			Alteration.xpToNext.put(el,  5);
+		}
+		if (Restoration.playerSkill.containsKey(el))
+			Restoration.playerSkill.put(el, Restoration.playerSkill.get(el) + 1);
+		else {
+			Restoration.playerSkill.put(el, 1);
+			Restoration.playerLevel.put(el, 1);
+			Restoration.xpToNext.put(el,  5);
+		}
+		if (Conjuration.playerSkill.containsKey(el))
+			Conjuration.playerSkill.put(el, Conjuration.playerSkill.get(el) + 1);
+		else {
+			Conjuration.playerSkill.put(el, 1);
+			Conjuration.playerLevel.put(el, 1);
+			Conjuration.xpToNext.put(el,  5);
+		}
+
+		if (Magic.Destruction.playerSkill.get(el) > Magic.Destruction.xpToNext.get(el)) {
+			Destruction.playerLevel.put(el, Destruction.playerLevel.get(el) + 1);
+			Magic.Destruction.xpToNext.put(el, Magic.Destruction.playerLevel.get(el) * 5);
+		}
+		if (Magic.Conjuration.playerSkill.get(el) > Magic.Conjuration.xpToNext.get(el)) {
+			Conjuration.playerLevel.put(el, Conjuration.playerLevel.get(el) + 1);
+			Magic.Conjuration.xpToNext.put(el, Magic.Conjuration.playerLevel.get(el) * 5);
+		}
+		if (Magic.Restoration.playerSkill.get(el) > Magic.Restoration.xpToNext.get(el)) {
+			Restoration.playerLevel.put(el, Restoration.playerLevel.get(el) + 1);
+			Magic.Restoration.xpToNext.put(el, Magic.Restoration.playerLevel.get(el) * 5);
+		}
+		if (Magic.Alteration.playerSkill.get(el) > Magic.Alteration.xpToNext.get(el)) {
+			Alteration.playerLevel.put(el, Alteration.playerLevel.get(el) + 1);
+			Magic.Alteration.xpToNext.put(el, Magic.Alteration.playerLevel.get(el) * 5);
+		}
 	}
 
 	public static void loadItems() {

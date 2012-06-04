@@ -26,7 +26,9 @@ import net.minecraft.src.mod_Dragon;
 
 public class Soldier extends EntityCreature {
 
-	public ItemStack heldItem = new ItemStack(Item.swordSteel, 1);
+	ItemStack sword = new ItemStack(
+			(Weapons.arrayWeapon[rand.nextInt(Weapons.arrayWeapon.length)].get(rand.nextInt(2))), 1);
+	public ItemStack heldItem = sword;
 	private int swingProgressInt = 0;
 	private boolean isSwinging = false;
 	public String name = "Soldier";
@@ -123,9 +125,6 @@ public class Soldier extends EntityCreature {
 		if (this.getAttackTarget() != null) {
 
 			ItemStack bow = new ItemStack(Item.bow);
-			ItemStack sword = new ItemStack(
-					(Weapons.arrayWeapon[rand.nextInt(Weapons.arrayWeapon.length)].get(rand
-							.nextInt(2))), 1);
 			double distance = this.getDistanceToEntity(this.getAttackTarget());
 			if (distance > 20f && heldItem != bow) {
 				heldItem = bow;
