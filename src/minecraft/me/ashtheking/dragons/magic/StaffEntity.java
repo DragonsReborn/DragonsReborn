@@ -262,14 +262,7 @@ public class StaffEntity extends Entity {
 				onCollide();
 			}
 		}
-		if (arrowCritical) {
-			for (int i1 = 0; i1 < 4; i1++) {
-				worldObj.spawnParticle("crit", posX + (motionX * (double) i1) / 4D, posY
-						+ (motionY * (double) i1) / 4D, posZ + (motionZ * (double) i1) / 4D,
-						-motionX, -motionY + 0.20000000000000001D, -motionZ);
-			}
-
-		}
+		
 		worldObj.spawnParticle(particletype, posX, posY, posZ, -motionX, -motionY + 0.2D, -motionZ);
 		posX += motionX;
 		posY += motionY;
@@ -289,15 +282,7 @@ public class StaffEntity extends Entity {
 		rotationYaw = prevRotationYaw + (rotationYaw - prevRotationYaw) * 0.2F;
 		float f4 = 0.99F;
 		float f6 = 0.05F;
-		if (isInWater()) {
-			for (int k1 = 0; k1 < 4; k1++) {
-				float f7 = 0.25F;
-				worldObj.spawnParticle("bubble", posX - motionX * (double) f7, posY - motionY
-						* (double) f7, posZ - motionZ * (double) f7, motionX, motionY, motionZ);
-			}
-
-			f4 = 0.8F;
-		}
+		
 		motionX *= f4;
 		motionY *= f4;
 		motionZ *= f4;

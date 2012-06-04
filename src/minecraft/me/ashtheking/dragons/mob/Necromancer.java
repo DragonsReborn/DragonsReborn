@@ -14,7 +14,7 @@ import net.minecraft.src.World;
 public class Necromancer extends Mage {
 	public Necromancer(World par1World) {
 		super(par1World);
-		texture = "/mob/zombie.png";
+		texture = "/mob/necromancer.png";
 		moveSpeed = 0.23F;
 		tasks.addTask(2, new EntityAIMagic(this, moveSpeed, Magic.staves.get(9).shiftedIndex, 60));
 	}

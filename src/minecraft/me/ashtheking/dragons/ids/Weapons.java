@@ -132,7 +132,7 @@ public class Weapons {
 	}
 
 	public static Object[] maceCraft(Item material) {
-		Object[] t = { "X", "x", "x", Character.valueOf('X'), material,
+		Object[] t = { "X  ", " x ", "  x", Character.valueOf('X'), material,
 				Character.valueOf('x'), Item.stick };
 		return t;
 	}
